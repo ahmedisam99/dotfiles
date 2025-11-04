@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Arch
+gum style --foreground "#0088cc" "Updating Arch Mirrors..."
+
+gum spin --spinner "moon" --spinner.foreground="#0088cc" --show-output -- \
+sudo reflector --latest 10 --sort rate --download-timeout 10 --protocol https --save /etc/pacman.d/mirrorlist
+
+# EOS
+
+gum style --foreground "#7d40bd" "Updating EndeavourOS Mirrors..."
+
+gum spin --spinner "moon" --spinner.foreground="#7d40bd" --show-output -- \
+sudo eos-rankmirrors
+
+# Done
+gum spin --spinner "globe" --title "Done! Press any key to close..." -- bash -c 'read -n 1 -s'
