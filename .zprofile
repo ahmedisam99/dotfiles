@@ -20,4 +20,4 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="$HOME/scripts:$PATH"
 
 # SSH
-eval $(keychain --quiet --eval github_personal gitlab_tentime)
+eval $(keychain --quiet --eval id_ed25519_personal id_ed25519_work)
