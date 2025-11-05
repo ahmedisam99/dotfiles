@@ -1,7 +1,3 @@
-#
-# ~/.zprofile
-#
-
 [[ -f ~/.zshrc ]] && . ~/.zshrc
 
 export XDG_DATA_HOME=$HOME/.local/share
@@ -11,10 +7,6 @@ export XDG_CACHE_HOME=$HOME/.cache
 
 # Added by Jetbrains Toolbox App
 export PATH="$PATH:/home/ahmedisam99/.local/share/JetBrains/Toolbox/scripts"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
 
 # personal scripts
 export PATH="$HOME/scripts:$PATH"
