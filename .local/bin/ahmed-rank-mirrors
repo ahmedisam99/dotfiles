@@ -1,31 +1,45 @@
 #!/bin/bash
 
+# Enable strict error handling:
+# -e : Exit immediately if any command exits with a non-zero status.
+# -u : Treat unset variables as errors and exit.
+# -o pipefail : In pipelines, fail if any command fails (not just the last one).
+set -euo pipefail
+
+# Prompt for sudo credentials once at the beginning
+sudo -v || exit 1
+
+# Start a background keep-alive loop to prevent the sudo timestamp
+while true; do
+  sudo -v
+  sleep 60
+done &
+
+# Record the process ID of the background keep-alive loop
+SUDO_KEEPALIVE_PID=$!
+gum style --foreground "#555" "sudo-keep-alive PID: $SUDO_KEEPALIVE_PID"
+
+finish() {
+  kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+  gum style --foreground "#555" "sudo-keep-alive process stopped"
+}
+
+# Register the finish function to run automatically on script exit
+trap 'gum style --foreground "#555" "Cleaning up..."; finish' EXIT
 
 # Arch
 gum style --foreground "#0088cc" "Updating Arch Mirrors..."
 
 gum spin --spinner "moon" --spinner.foreground="#0088cc" --show-output -- \
-sudo reflector --latest 10 --sort rate --download-timeout 10 --protocol https --save /etc/pacman.d/mirrorlist
-
-
-
-
-
-
+  sudo reflector \
+    --latest 10 \
+    --sort rate \
+    --download-timeout 10 \
+    --protocol https \
+    --save /etc/pacman.d/mirrorlist
 
 # EOS
 gum style --foreground "#7d40bd" "Updating EndeavourOS Mirrors..."
 
 gum spin --spinner "moon" --spinner.foreground="#7d40bd" --show-output -- \
-sudo eos-rankmirrors
-
-
-
-
-
-
-
-
-
-# Done
-gum spin --spinner "globe" --title "Done! Press any key to close..." -- bash -c 'read -n 1 -s'
+  sudo eos-rankmirrors --show-rank-info no --show-orig-list no --timeout 10
