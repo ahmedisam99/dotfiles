@@ -175,5 +175,5 @@ process.stdin.on("end", () => {
   }
 
   // Output the complete status line
-  console.log(parts.join(` ${c.gray("•")} `));
+  console.log(parts.join(` ${c.gray("|")} `));
 });
