@@ -68,8 +68,10 @@ alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
 alias vim='nvim'
 
 # Shell integrations
-eval "$(fzf --zsh)"
-eval "$(zoxide init --cmd cd zsh)"
+if [[ -o interactive ]]; then
+    eval "$(fzf --zsh)"
+    eval "$(zoxide init --cmd cd zsh)"
+fi
 
 # Added by nvm
 export NVM_DIR="$HOME/.nvm"
