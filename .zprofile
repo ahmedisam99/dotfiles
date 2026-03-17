@@ -19,7 +19,16 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 # bun end
 
+# local bin
 export PATH="$HOME/.local/bin:$PATH"
+
+# Java
+export JAVA_HOME="/usr/lib/jvm/default"
+
+# android
+export ANDROID_HOME="$HOME/Android/Sdk"
+export PATH="$PATH:$ANDROID_HOME/emulator"
+export PATH="$PATH:$ANDROID_HOME/platform-tools"
 
 # SSH
 eval $(keychain --quiet --eval id_ed25519_personal id_ed25519_work)
