@@ -6,26 +6,7 @@
 # -o pipefail : In pipelines, fail if any command fails (not just the last one).
 set -euo pipefail
 
-# Prompt for sudo credentials once at the beginning
-sudo -v || exit 1
-
-# Start a background keep-alive loop to prevent the sudo timestamp
-while true; do
-  sudo -v
-  sleep 60
-done &
-
-# Record the process ID of the background keep-alive loop
-SUDO_KEEPALIVE_PID=$!
-gum style --foreground "#555" "sudo-keep-alive PID: $SUDO_KEEPALIVE_PID"
-
-finish() {
-  kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
-  gum style --foreground "#555" "sudo-keep-alive process stopped"
-}
-
-# Register the finish function to run automatically on script exit
-trap 'gum style --foreground "#555" "Cleaning up..."; finish' EXIT
+source ahmed-sudo-keepalive
 
 # Arch
 gum style --foreground "#0088cc" "Updating Arch Mirrors..."
