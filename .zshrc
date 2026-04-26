@@ -65,7 +65,7 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza -a --group-directories-
 # Aliases
 alias ls='eza -lah --group-directories-first --icons=auto'
 alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
-alias cc='claude --allow-dangerously-skip-permissions -c || claude --allow-dangerously-skip-permissions'
+alias cc='claude --allow-dangerously-skip-permissions'
 alias vim='nvim'
 
 # Shell integrations
