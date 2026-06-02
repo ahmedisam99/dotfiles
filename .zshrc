@@ -67,6 +67,11 @@ alias ls='eza -lah --group-directories-first --icons=auto'
 alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
 alias cc='claude --allow-dangerously-skip-permissions'
 alias vim='nvim'
+# acer-wmi-battery
+alias ahmed-batlim-on='echo 1 | sudo tee /sys/bus/wmi/drivers/acer-wmi-battery/health_mode'
+alias ahmed-batlim-off='echo 0 | sudo tee /sys/bus/wmi/drivers/acer-wmi-battery/health_mode'
+alias ahmed-batlim-status='cat /sys/bus/wmi/drivers/acer-wmi-battery/health_mode'
+alias ahmed-battemp='awk "{print \$1/1000 \"°C\"}" /sys/bus/wmi/drivers/acer-wmi-battery/temperature'
 
 # Shell integrations
 if [[ -o interactive ]]; then

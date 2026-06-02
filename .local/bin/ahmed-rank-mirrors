@@ -13,10 +13,12 @@ gum style --foreground "#0088cc" "Updating Arch Mirrors..."
 
 gum spin --spinner "moon" --spinner.foreground="#0088cc" --show-output -- \
   sudo reflector \
-    --latest 10 \
-    --sort rate \
-    --download-timeout 10 \
+    --country Israel,Turkey,Greece,Bulgaria,Romania,Germany,France,Netherlands,Austria \
+    --age 12 \
     --protocol https \
+    --sort score \
+    --number 10 \
+    --download-timeout 5 \
     --save /etc/pacman.d/mirrorlist
 
 # EOS
