@@ -25,7 +25,6 @@ const colors = {
   brightMagenta: '\x1b[95m',
 
   anthropicOrange: '\x1b[38;2;217;119;6m', // #D97706
-  cavemanBadge: '\x1b[38;2;168;162;158m', // #A8A29E
 };
 
 const c = {
@@ -43,7 +42,6 @@ const c = {
   brightYellow: (str) => `${colors.brightYellow}${str}${colors.reset}`,
   brightMagenta: (str) => `${colors.brightMagenta}${str}${colors.reset}`,
   anthropicOrange: (str) => `${colors.anthropicOrange}${str}${colors.reset}`,
-  cavemanBadge: (str) => `${colors.cavemanBadge}${str}${colors.reset}`,
   dim: (str) => `${colors.dim}${str}${colors.reset}`,
   bold: (str) => `${colors.bold}${str}${colors.reset}`,
 };
@@ -129,12 +127,6 @@ process.stdin.on('end', () => {
     parts.push(c.gray(`${fmt(currentIn)}↓ ${fmt(currentOut)}↑`));
   }
 
-  // 9. CAVEMAN_BADGE (only if active)
-  const badge = cavemanBadge();
-  if (badge) {
-    parts.push(badge);
-  }
-
   // Output the complete status line
   console.log(parts.join(` ${c.gray('|')} `));
 });
@@ -178,22 +170,4 @@ const gitBranch = (projectDir) => {
     // Not a git repo or can't read HEAD
   }
   return '';
-};
-
-const cavemanBadge = () => {
-  try {
-    const flagPath = path.join(homeDir, '.claude', '.caveman-active');
-    if (!fs.existsSync(flagPath)) {
-      return '';
-    }
-
-    const mode = fs.readFileSync(flagPath, 'utf8').trim();
-    if (mode === '') {
-      return c.cavemanBadge('[CAVEMAN]');
-    }
-
-    return c.cavemanBadge(`[CAVEMAN:${mode.toUpperCase()}]`);
-  } catch (e) {
-    return '';
-  }
 };
