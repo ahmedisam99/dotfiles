@@ -31,4 +31,4 @@ export PATH="$PATH:$ANDROID_HOME/emulator"
 export PATH="$PATH:$ANDROID_HOME/platform-tools"
 
 # SSH
-eval $(keychain --quiet --eval id_ed25519_personal id_ed25519_work)
+eval $(keychain --quiet --eval --immediate id_ed25519_personal id_ed25519_work)
