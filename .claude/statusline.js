@@ -167,13 +167,16 @@ const fmtLimit = (window) => {
   return usageColor(pct)(`${pct}%`);
 };
 
+// 45s, 23m4s, then seconds are dropped from an hour up: 1h5m, 1d2h44m
 const fmtDuration = (ms) => {
-  if (ms === 0) return '0s';
-  const seconds = ms / 1000;
-  if (seconds < 60) return `${seconds.toFixed(1)}s`;
-  const minutes = Math.floor(seconds / 60);
-  const secs = Math.round(seconds % 60);
-  return `${minutes}m${secs}s`;
+  const totalSeconds = Math.floor(ms / 1000);
+  if (totalSeconds < 60) return `${totalSeconds}s`;
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  if (totalMinutes < 60) return `${totalMinutes}m${totalSeconds % 60}s`;
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+  return days ? `${days}d${hours}h${minutes}m` : `${hours}h${minutes}m`;
 };
 
 const fmtCost = (usd) => {
