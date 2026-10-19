@@ -1,0 +1,32 @@
+# Stow ignore list for this repo (stow . from the repo root, target ~).
+# When this file exists stow skips its built-in ignore list, so those defaults
+# (copied from Stow.pm, GNU Stow 2.4.1) are repeated first.
+# Patterns are Perl regexes: with a / they match the path from the repo root,
+# without one they match the file name.
+
+# Stow defaults
+RCS
+.+,v
+
+CVS
+\.\#.+       # CVS conflict files / emacs lock files
+\.cvsignore
+
+\.svn
+_darcs
+\.hg
+
+\.git
+\.gitignore
+\.gitmodules
+
+.+~          # emacs backup files
+\#.*\#       # emacs autosave files
+
+^/README.*
+^/LICENSE.*
+^/COPYING
+
+# Repo-only files
+^/CLAUDE\.md
+^/\.claude/settings\.json    # this repo's project settings, would otherwise become ~/.claude/settings.json
