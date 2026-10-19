@@ -161,9 +161,9 @@ const fmt = (n) => {
   return n.toString();
 };
 
+// Claude Code drops a window once its resets_at passes, so a missing window is a fresh one: 0%
 const fmtLimit = (window) => {
-  if (!window) return c.gray('-');
-  const pct = Math.round(window.used_percentage);
+  const pct = Math.round(window?.used_percentage ?? 0);
   return usageColor(pct)(`${pct}%`);
 };
 
