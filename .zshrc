@@ -69,18 +69,18 @@ alias vim='nvim'
 alias ls='eza -lah --group-directories-first --icons=auto'
 alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
 alias cc='claude --allow-dangerously-skip-permissions'
+
+# ENABLE_TOOL_SEARCH: tool search defers MCP tool definitions and loads them on demand
+# via the ToolSearch tool (needs tool_reference blocks). Claude Code already turns it off
+# when ANTHROPIC_BASE_URL isn't Anthropic's API, since most proxies don't forward those
+# blocks. =false pins that explicitly, so a changed default can't break requests.
 alias cx='ANTHROPIC_BASE_URL=http://127.0.0.1:8317 \
   ANTHROPIC_AUTH_TOKEN=${AHMED_CLIPROXY_TOKEN:?not set in ~/.ahmedsecrets} \
-  ANTHROPIC_DEFAULT_HAIKU_MODEL=gpt-5.6-luna \
-  ANTHROPIC_DEFAULT_SONNET_MODEL=gpt-5.6-terra \
-  ANTHROPIC_DEFAULT_OPUS_MODEL=gpt-5.6-sol \
-  ANTHROPIC_DEFAULT_FABLE_MODEL=gpt-5.6-sol \
   CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1 \
-  CLAUDE_CODE_SUBAGENT_MODEL=gpt-5.6-sol \
   CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1 \
-  CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY=3 \
+  CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY=5 \
   ENABLE_TOOL_SEARCH=false \
-  claude --model gpt-5.6-sol --allow-dangerously-skip-permissions'
+  claude --allow-dangerously-skip-permissions'
 
 # Shell integrations
 if [[ -o interactive ]]; then
