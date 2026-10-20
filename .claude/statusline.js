@@ -129,6 +129,15 @@ process.stdin.on('end', () => {
     parts.push(`${fmtLimit(fiveHour)}${c.gray('/')}${fmtLimit(sevenDay)}`);
   }
 
+  // 8. [PROJECT_DIR, ADDED_DIRS...]: every working directory, only once some were added with /add-dir or --add-dir
+  const addedDirs = data.workspace.added_dirs;
+  if (addedDirs.length) {
+    const dirs = [data.workspace.project_dir, ...addedDirs]
+      .map((dir) => c.brightBlue(tildify(dir)))
+      .join(c.gray(', '));
+    parts.push(`${c.gray('[')}${dirs}${c.gray(']')}`);
+  }
+
   // Output the complete status line
   console.log(parts.join(` ${c.gray('|')} `));
 });
