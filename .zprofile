@@ -27,6 +27,7 @@ export JAVA_HOME="/usr/lib/jvm/default"
 
 # android
 export ANDROID_HOME="$HOME/Android/Sdk"
+export ANDROID_USER_HOME="$HOME/.android"   # keep Android out of XDG_CONFIG_HOME
 export PATH="$PATH:$ANDROID_HOME/emulator"
 export PATH="$PATH:$ANDROID_HOME/platform-tools"
 
