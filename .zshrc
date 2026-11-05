@@ -92,10 +92,6 @@ if [[ -o interactive ]]; then
     eval "$(zoxide init --cmd cd zsh)"
 fi
 
-# Added by nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"  # This loads nvm
-
 # ASCII BOAT SHELL INTEGRATION START boat
 boat() {
   current_file=$(mktemp)
@@ -130,3 +126,6 @@ boat() {
   return "$boat_status"
 }
 # ASCII BOAT SHELL INTEGRATION END boat
+
+# Vite+ bin (https://viteplus.dev)
+. "/home/ahmedisam99/.config/vite-plus/env"
