@@ -122,12 +122,13 @@ process.stdin.on('end', () => {
     parts.push(`${c.gray('cache')} ${c.yellow('cold')}${recache}`);
   }
 
-  // 7. RATE_LIMITS: 5H%/7D% (only for Pro/Max, after the first API response)
-  const fiveHour = data.rate_limits?.five_hour;
-  const sevenDay = data.rate_limits?.seven_day;
-  if (fiveHour || sevenDay) {
-    parts.push(`${fmtLimit(fiveHour)}${c.gray('/')}${fmtLimit(sevenDay)}`);
-  }
+  // 7. RATE_LIMITS: 5H%/7D%, a 0% window is hidden and so is the section when all are (only for Pro/Max, after the first API response)
+  // Fable's weekly window isn't in the status line input (checked in 2.1.322), add it between the two once it is
+  const limits = [data.rate_limits?.five_hour, data.rate_limits?.seven_day]
+    .map(limitPct)
+    .filter((pct) => pct > 0)
+    .map((pct) => usageColor(pct)(`${pct}%`));
+  if (limits.length) parts.push(limits.join(c.gray('/')));
 
   // 8. [PROJECT_DIR, ADDED_DIRS...]: every working directory, only once some were added with /add-dir or --add-dir
   const addedDirs = data.workspace.added_dirs;
@@ -171,10 +172,7 @@ const fmt = (n) => {
 };
 
 // Claude Code drops a window once its resets_at passes, so a missing window is a fresh one: 0%
-const fmtLimit = (window) => {
-  const pct = Math.round(window?.used_percentage ?? 0);
-  return usageColor(pct)(`${pct}%`);
-};
+const limitPct = (window) => Math.round(window?.used_percentage ?? 0);
 
 // 45s, 23m4s, then seconds are dropped from an hour up: 1h5m, 1d2h44m
 const fmtDuration = (ms) => {
