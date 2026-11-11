@@ -6,10 +6,6 @@ export XDG_CACHE_HOME=$HOME/.cache
 # Added by Jetbrains Toolbox App
 export PATH="$PATH:$HOME/.local/share/JetBrains/Toolbox/scripts"
 
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-# bun end
 
 # local bin
 export PATH="$HOME/.local/bin:$PATH"
