@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
-const homeDir = '/home/ahmedisam99';
+const homeDir = os.homedir();
 const colors = {
   reset: '\x1b[0m',
   bold: '\x1b[1m',
