@@ -76,14 +76,14 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza -a --group-directories-
 alias vim='nvim'
 alias ls='eza -lah --group-directories-first --icons=auto'
 alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
-alias cc='claude --allow-dangerously-skip-permissions --settings ~/.claude/ahmed-no-account-settings.json'
+alias cc='claude --allow-dangerously-skip-permissions'
 
 alias cpa='ANTHROPIC_BASE_URL=http://127.0.0.1:8317 \
   ANTHROPIC_AUTH_TOKEN=${AHMED_CLIPROXY_TOKEN:?not set in ~/.ahmedsecrets} \
   CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1 \
   CLAUDE_CODE_ALWAYS_ENABLE_EFFORT=1 \
   ENABLE_TOOL_SEARCH=true \
-  claude --allow-dangerously-skip-permissions --settings ~/.claude/ahmed-no-account-settings.json'
+  claude --allow-dangerously-skip-permissions'
 
 # Shell integrations
 if [[ -o interactive ]]; then
