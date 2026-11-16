@@ -16,11 +16,19 @@ text='#cdd6f4' overlay='#6c7086' surface0='#313244' surface2='#585b70'
 # Truecolor foreground escape for a #rrggbb colour.
 fg() { printf '\e[38;2;%d;%d;%dm' "0x${1:1:2}" "0x${1:3:2}" "0x${1:5:2}"; }
 
-# "alias<TAB>hostname" for each Host alias, skipping wildcard and negated
+# "alias<TAB>hostname" for each Host alias, A-Z, skipping wildcard and negated
 # patterns. Like ssh, the first HostName found for an alias wins; it's empty
 # when the alias has none. Text after # is a comment (lazyssh appends
 # "#Added by lazyssh" to the Host lines it writes).
 hosts() {
+  host_entries | sort_by_alias
+}
+
+sort_by_alias() {
+  awk -F '\t' '{ print tolower($1) "\t" $0 }' | LC_ALL=C sort -s -t "$tab" -k1,1 | cut -f2-
+}
+
+host_entries() {
   awk '
     {
       line = $0
