@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+# Pick a host from ~/.ssh/config with fzf and open it in its own tmux window,
+# named ssh:<host>. If a window is already connected to that host, jump to it.
+# Bound to prefix + S in .tmux.conf, where it runs inside a display-popup.
+# `ahmed-tmux-ssh --preview <host>` prints that host's config (fzf's preview).
+
+set -euo pipefail
+
+config=$HOME/.ssh/config
+tab=$'\t'
+
+# Catppuccin Mocha, the palette of the mocha-tmux status bar.
+blue='#89b4fa' green='#a6e3a1' pink='#f5c2e7' red='#f38ba8' mauve='#cba6f7'
+text='#cdd6f4' overlay='#6c7086' surface0='#313244' surface2='#585b70'
+
+# Truecolor foreground escape for a #rrggbb colour.
+fg() { printf '\e[38;2;%d;%d;%dm' "0x${1:1:2}" "0x${1:3:2}" "0x${1:5:2}"; }
+
+# "alias<TAB>hostname" for each Host alias, skipping wildcard and negated
+# patterns. Like ssh, the first HostName found for an alias wins; it's empty
+# when the alias has none. Text after # is a comment (lazyssh appends
+# "#Added by lazyssh" to the Host lines it writes).
+hosts() {
+  awk '
+    {
+      line = $0
+      sub(/#.*/, "", line)
+      sub(/^[ \t]+/, "", line)
+      n = split(line, f, /[ \t=]+/)
+      kw = tolower(f[1])
+    }
+    kw == "host" {
+      current = 0
+      for (i = 2; i <= n; i++) {
+        if (f[i] == "" || f[i] ~ /[*?!]/) continue
+        if (!(f[i] in hostname)) { order[++count] = f[i]; hostname[f[i]] = "" }
+        block[++current] = f[i]
+      }
+      next
+    }
+    kw == "match" { current = 0; next }
+    kw == "hostname" {
+      for (i = 1; i <= current; i++)
+        if (hostname[block[i]] == "") {
+          name = f[2]
+          gsub(/%h/, block[i], name)
+          hostname[block[i]] = name
+        }
+    }
+    END { for (i = 1; i <= count; i++) print order[i] "\t" hostname[order[i]] }
+  ' "$config"
+}
+
+# The settings under every Host line that names this host, as written in the
+# config, with keys, values and comments coloured.
+host_config() {
+  awk -v host="$1" -v key="$(fg "$blue")" -v val="$(fg "$text")" \
+    -v dim="$(fg "$overlay")" -v off=$'\e[0m' '
+    {
+      bare = $0
+      sub(/#.*/, "", bare)
+      split(bare, f)
+      kw = tolower(f[1])
+    }
+    kw == "host" || kw == "match" {
+      inblock = 0
+      if (kw == "host")
+        for (i = 2; i in f; i++)
+          if (f[i] == host) inblock = 1
+      if (inblock && shown++) print ""
+      next
+    }
+    !inblock || NF == 0 { next }
+    {
+      line = $0
+      sub(/^[ \t]+/, "", line)
+      comment = ""
+      if (match(line, /#.*/)) {
+        comment = substr(line, RSTART)
+        line = substr(line, 1, RSTART - 1)
+        sub(/[ \t]+$/, "", line)
+      }
+      if (line == "") { print dim comment off; next }
+      match(line, /[ \t=]+/)
+      k = RSTART ? substr(line, 1, RSTART - 1) : line
+      v = RSTART ? substr(line, RSTART + RLENGTH) : ""
+      printf "%s%-16s%s %s%s%s", key, k, off, val, v, off
+      if (comment != "") printf "  %s%s%s", dim, comment, off
+      print ""
+    }
+  ' "$config"
+}
+
+# Host and window id for every ssh:<host> window whose pane still has an ssh
+# child. The name alone isn't enough: tmux-resurrect brings ssh:<host> windows
+# back running a local shell, and a failed connection's window stays open.
+connected() {
+  tmux list-panes -s -F "#{window_id}${tab}#{window_name}${tab}#{pane_pid}" |
+    while IFS=$'\t' read -r window name pid; do
+      if [[ $name == ssh:* ]] && pgrep -P "$pid" -x ssh > /dev/null; then
+        printf '%s\t%s\n' "${name#ssh:}" "$window"
+      fi
+    done
+}
+
+if [[ ${1:-} == --preview ]]; then
+  host_config "$2"
+  exit 0
+fi
+
+declare -A open=()
+while IFS=$'\t' read -r host window; do
+  open[$host]=$window
+done < <(connected)
+
+off=$'\e[0m'
+dot="$(fg "$green")●$off"
+dim=$(fg "$overlay")
+# Items are "alias<TAB>● alias (hostname)<TAB>address": fzf shows and filters
+# the second field (so typing part of an address works too), prints the first
+# on Enter, and copies the third on ctrl-y. The address is the HostName, or
+# the alias when there is none (ssh then connects to the alias as is).
+choice=$(
+  hosts | while IFS=$'\t' read -r host hostname; do
+    if [[ -n ${open[$host]:-} ]]; then mark=$dot; else mark=' '; fi
+    if [[ -n $hostname && $hostname != "$host" ]]; then
+      shown=" $dim($hostname)$off"
+    else
+      shown=''
+    fi
+    printf '%s\t%s %s%s\t%s\n' "$host" "$mark" "$host" "$shown" "${hostname:-$host}"
+  done | fzf --ansi --delimiter '\t' --with-nth 2 --accept-nth 1 \
+    --style full:rounded --layout reverse \
+    --input-label ' ssh ' --list-label ' hosts ' \
+    --prompt '❯ ' --ghost "filter · ● open · ctrl-y copies address" \
+    --info inline-right --gutter ' ' --pointer '▌' \
+    --preview "${0@Q} --preview {1}" \
+    --preview-window 'right,55%,<50(down,50%)' \
+    --bind 'focus:transform-preview-label(printf " %s " {1})+change-input-label( ssh )' \
+    --bind 'ctrl-y:execute-silent(tmux set-buffer -w -- {3})+transform-input-label(printf " copied %s " {3})' \
+    --color "bg:-1,preview-bg:-1,gutter:-1,bg+:$surface0" \
+    --color "fg:$text,fg+:$text:bold,hl:$red,hl+:$red,query:$text" \
+    --color "border:$surface2,label:$blue,prompt:$mauve,pointer:$pink" \
+    --color "info:$overlay,ghost:$overlay,scrollbar:$surface2"
+) || exit 0 # Esc or Ctrl-C
+
+if [[ -n ${open[$choice]:-} ]]; then
+  tmux select-window -t "${open[$choice]}"
+  exit 0
+fi
+
+# ssh exits with 255 when it can't connect: keep the window open then so the
+# error stays readable. Any other exit is a logout and closes the window.
+# (tmux's remain-on-exit can't do this: its "Pane is dead" line scrolls a
+# one-line error off the screen.)
+tmux new-window -n "ssh:$choice" sh -c '
+  ssh -- "$1"
+  [ $? -eq 255 ] || exit 0
+  printf "\nCould not connect to %s. Press Enter to close." "$1"
+  read -r reply
+' sh "$choice"
